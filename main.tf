@@ -31,7 +31,7 @@ resource "aws_security_group" "sg" {
   }
 }
 resource "aws_launch_template" "template" {
-  name   = "${var.name}-${var.env}-lt"
+  name_prefix   = "${var.name}-${var.env}-lt"
   image_id      = data.aws_ami.ami.id
   instance_type = var.instance_type
   vpc_security_group_ids = [aws_security_group.sg.id]
@@ -58,4 +58,3 @@ resource "aws_autoscaling_group" "asg" {
     }
   }
 }
-
