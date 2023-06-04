@@ -4,18 +4,18 @@ resource "aws_security_group" "sg" {
   vpc_id      = var.vpc_id
 
   ingress {
-    description      = "APP"
-    from_port        = var.app_port
-    to_port          = var.app_port
-    protocol         = "tcp"
-    cidr_blocks      = var.allow_app_cidr
+    description = "APP"
+    from_port   = var.app_port
+    to_port     = var.app_port
+    protocol    = "tcp"
+    cidr_blocks = var.allow_app_cidr
   }
   ingress {
-    description      = "SSH"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = var.bastion_cidr
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = var.bastion_cidr
   }
 
   egress {
@@ -34,6 +34,10 @@ resource "aws_launch_template" "template" {
   image_id               = data.aws_ami.ami.id
   instance_type          = var.instance_type
   vpc_security_group_ids = [aws_security_group.sg.id]
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.instance_profile.name
+  }
 
   user_data = base64encode(templatefile("${path.module}/userdata.sh", {
     name = var.name
@@ -70,6 +74,15 @@ resource "aws_lb_target_group" "main" {
   protocol = "HTTP"
   vpc_id   = var.vpc_id
   tags     = merge(var.tags, { Name = "${var.name}-${var.env}-tg" })
+
+  health_check {
+    enabled             = true
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    interval            = 5
+    timeout             = 4
+    path                = "/health"
+  }
 }
 
 resource "aws_lb_listener_rule" "rule" {
