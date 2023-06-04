@@ -10,3 +10,10 @@ variable "max_size" {}
 variable "min_size" {}
 variable "tags" {}
 variable "app_port" {}
+variable "listener_arn" {}
+variable "listener_priority" {}
+variable "domain_name" {}
+variable "domain_id" {}
+variable "lb_dns_name" {}
+variable "dns_name" {}
+variable "kms_arn" {}
