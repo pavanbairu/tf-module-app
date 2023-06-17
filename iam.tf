@@ -42,7 +42,8 @@ resource "aws_iam_role_policy" "role" {
           "ssm:GetParameters",
           "ssm:GetParameter"
         ],
-        "Resource" : concat([var.kms_arn], local.resources)
+        "Resource" : concat([var.kms_arn,"arn:aws:ssm:us-east-1:${data.aws_caller_identity.identity
+        .account_id}:parameter/${var.name}.schema.checksum"], local.resources)
       }
       #      {
       #        "Sid": "VisualEditor1",
