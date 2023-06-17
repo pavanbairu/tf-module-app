@@ -18,6 +18,14 @@ resource "aws_security_group" "sg" {
     cidr_blocks = var.bastion_cidr
   }
 
+  ingress {
+    description = "PROMETHEUS"
+    from_port   = 9100
+    to_port     = 9100
+    protocol    = "tcp"
+    cidr_blocks = var.monitor_cidr
+  }
+
   egress {
     from_port        = 0
     to_port          = 0
@@ -65,6 +73,18 @@ resource "aws_autoscaling_group" "asg" {
       propagate_at_launch = true
       value               = tag.value
     }
+  }
+}
+
+resource "aws_autoscaling_policy" "asg-cpu-rule" {
+  name                   = "CPULoadDetect"
+  autoscaling_group_name = aws_autoscaling_group.asg.name
+  policy_type            = "TargetTrackingScaling"
+  target_tracking_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+    target_value = 20.0
   }
 }
 
